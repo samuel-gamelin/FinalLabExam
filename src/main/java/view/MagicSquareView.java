@@ -92,6 +92,7 @@ public class MagicSquareView extends JFrame implements MagicSquareListener {
             int choice = JOptionPane.showOptionDialog(this, "Play again?", "Victory!", JOptionPane.DEFAULT_OPTION,
                     JOptionPane.PLAIN_MESSAGE, null, new String[]{"Yes", "No"}, "Yes");
             if (choice == 0) {
+                this.model.reset();
                 this.reset();
             } else {
                 System.exit(0);

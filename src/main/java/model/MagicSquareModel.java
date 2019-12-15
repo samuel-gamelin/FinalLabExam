@@ -19,7 +19,7 @@ public class MagicSquareModel {
     /**
      * A 2D array of strings representing which squares are occupied.
      */
-    private String[][] grid;
+    private int[][] grid;
 
     /**
      * A counter representing the number of free squares left.
@@ -40,14 +40,14 @@ public class MagicSquareModel {
      * Constructs a MagicSquare model.
      */
     public MagicSquareModel() {
-        this.grid = new String[SIZE][SIZE];
+        this.grid = new int[SIZE][SIZE];
         this.numFreeSquares = SIZE * SIZE;
         this.status = Status.IN_PROGRESS;
         this.magicSquareListenerList = new ArrayList<>();
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                this.grid[i][j] = "";
+                this.grid[i][j] = -1;
             }
         }
     }
@@ -68,9 +68,12 @@ public class MagicSquareModel {
      * @param y The y-coordinate of the move that is to be made
      */
     public void play(int x, int y, int number) {
-        this.grid[x][y] = "" + number;
+        this.grid[x][y] = number;
         this.numFreeSquares--;
-        updateStatus();
+
+        if (numFreeSquares == 0) { // Update the status when all squares have been filled
+            updateStatus();
+        }
 
         MagicSquareEvent event = new MagicSquareEvent(this, x, y, number, status);
 
@@ -88,7 +91,7 @@ public class MagicSquareModel {
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                this.grid[i][j] = "";
+                this.grid[i][j] = -1;
             }
         }
     }
@@ -103,13 +106,13 @@ public class MagicSquareModel {
     }
 
     /**
-     * Returns the piece on this model's grid at the specified coordinates
+     * Returns the number on this model's grid at the specified coordinates
      *
      * @param x The x-coordinate
      * @param y The y-coordinate
-     * @return The piece at the specified coordinates
+     * @return The number at the specified coordinates
      */
-    public String getPiece(int x, int y) {
+    public int getPiece(int x, int y) {
         return this.grid[x][y];
     }
 
@@ -117,40 +120,43 @@ public class MagicSquareModel {
      * Updates the status of this model based on the underlying grid representing the game's state.
      */
     private void updateStatus() {
-        Set<String> stringSetRow = new HashSet<>();    // This set will be used to add characters along rows
-        Set<String> stringSetColumn = new HashSet<>();    // This set will be used to add characters along columns
+        Set<Integer> all = new HashSet<>();
+
+        List<Integer> integerListRow = new ArrayList<>();    // This set will be used to add numbers along rows
+        List<Integer> integerListColumn = new ArrayList<>();    // This set will be used to add characters along columns
+        List<Integer> integerListDiagonal = new ArrayList<>();    // This set will be used to add characters along the two diagonals
+
         for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the set
             for (int j = 0; j < SIZE; j++) {
-                stringSetRow.add(this.grid[i][j]);
-                stringSetColumn.add(this.grid[j][i]);
+                integerListRow.add(this.grid[i][j]);
+                integerListColumn.add(this.grid[i][j]);
             }
-            if (isWinning(stringSetRow) || isWinning(stringSetColumn)) {   // If the set contains only "X" or "O", the status will have been set by
-                return;                         // the isWinning method, and we can return
-            }
-            stringSetRow.clear();
-            stringSetColumn.clear();
+
+            all.add(integerListRow.stream().mapToInt(Integer::intValue).sum());     // This adds the sum of the numbers in the row to the set
+            all.add(integerListColumn.stream().mapToInt(Integer::intValue).sum());  // This adds the sum of the numbers in the column to the set
+
+            integerListRow.clear();
+            integerListColumn.clear();
         }
 
         // The same idea applies here to the two following checks for diagonals
         for (int i = 0; i < SIZE; i++) {
-            stringSetColumn.add(this.grid[i][i]);
-        }
-        if (isWinning(stringSetColumn)) {
-            return;
+            integerListDiagonal.add(this.grid[i][i]);
         }
 
-        stringSetColumn.clear();
+        all.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the diagonal to the set
+        integerListDiagonal.clear();
+
         for (int i = 0; i < SIZE; i++) {
-            stringSetColumn.add(this.grid[SIZE - 1 - i][i]);
-        }
-        if (isWinning(stringSetColumn)) {
-            return;
+            integerListDiagonal.add(this.grid[SIZE - 1 - i][i]);
         }
 
-        if (numFreeSquares == 0) {      // If there are no free squares by this point, it's a draw
+        all.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the diagonal to the set
+
+        if (all.size() == 1) {  // If all sums that were added to the set are the same (1 element in the set), then it is a victory
             this.status = Status.VICTORY;
-        } else {                        // Otherwise the game is still in progress
-            this.status = Status.IN_PROGRESS;
+        } else {    // Otherwise it is not a victory
+            this.status = Status.NO_VICTORY;
         }
     }
 
