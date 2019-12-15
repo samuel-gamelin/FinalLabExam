@@ -7,7 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * This class represents a controller for the TicTacToe game. It is intended to be used on individual buttons.
+ * This class represents a controller for the Magic Square game. It is intended to be used on individual buttons.
+ * It contains an associated position (as two integers, x and y) along with the corresponding model on which a move
+ * should be made when a button from the game is clicked.
  *
  * @author Samuel Gamelin
  */
@@ -28,7 +30,7 @@ public class MagicSquareController implements ActionListener {
     private MagicSquareModel model;
 
     /**
-     * Creates a TicTacToeController with the provided parameters.
+     * Creates a MagicSquareController with the provided parameters.
      *
      * @param x     The x-coordinate for the button associated with this controller
      * @param y     The y-coordinate for the button associated with this controller
@@ -47,8 +49,29 @@ public class MagicSquareController implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        //prompt user here until they input a number
-        int number = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter a number"));
-        this.model.play(x, y, number);
+        boolean invalidNumber = false; // Used to keep track of if the user has put in an invalid number (start off by assuming it's valid)
+
+        /*
+         * This do-while loop will prompt the user to input a valid number until they either input a valid number or
+         * cancel their input, at which point the function returns without making a move.
+         */
+        do {
+            String input = JOptionPane.showInputDialog(null, invalidNumber ? "Enter a valid number" : "Enter a number");
+
+            if (input == null) { // If the user cancels, return immediately without making a move
+                return;
+            } else if (input.matches("-?\\d+")) {
+                /*
+                 * The above regular expression determines if the string represents a number, which can optionally start
+                 * with a negative sign, followed by one or more digits. If the number is valid, the play method in the
+                 * model is called with the number.
+                 */
+                int number = Integer.parseInt(input);
+                this.model.play(x, y, number);
+                invalidNumber = false;
+            } else {
+                invalidNumber = true;
+            }
+        } while (invalidNumber);
     }
 }

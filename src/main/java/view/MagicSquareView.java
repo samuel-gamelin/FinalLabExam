@@ -87,9 +87,15 @@ public class MagicSquareView extends JFrame implements MagicSquareListener {
         this.buttons[x][y].setEnabled(false);
         this.buttons[x][y].setText("" + number);
 
-        if (status == Status.VICTORY) {
+        if (status == Status.VICTORY || status == Status.NO_VICTORY) {
             this.disableButtons();
-            int choice = JOptionPane.showOptionDialog(this, "Play again?", "Victory!", JOptionPane.DEFAULT_OPTION,
+
+            String message = "";
+
+            message = status == Status.VICTORY ? "Congratulations! The square is a magic square! Play again?" :
+                    "Unfortunately that square is not a magic square. Play again?";
+
+            int choice = JOptionPane.showOptionDialog(this, message, status.toString(), JOptionPane.DEFAULT_OPTION,
                     JOptionPane.PLAIN_MESSAGE, null, new String[]{"Yes", "No"}, "Yes");
             if (choice == 0) {
                 this.model.reset();
@@ -112,7 +118,7 @@ public class MagicSquareView extends JFrame implements MagicSquareListener {
     }
 
     /**
-     * Resets view-related components.
+     * Resets (enables and clears text) on all buttons on the grid.
      */
     private void reset() {
         for (int i = 0; i < SIZE; i++) {

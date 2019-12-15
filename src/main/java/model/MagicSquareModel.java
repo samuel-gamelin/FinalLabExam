@@ -75,7 +75,7 @@ public class MagicSquareModel {
             updateStatus();
         }
 
-        MagicSquareEvent event = new MagicSquareEvent(this, x, y, number, status);
+        MagicSquareEvent event = new MagicSquareEvent(x, y, number, status);
 
         for (MagicSquareListener magicSquareListener : magicSquareListenerList) {
             magicSquareListener.handleMagicSquareEvent(event);
@@ -106,78 +106,47 @@ public class MagicSquareModel {
     }
 
     /**
-     * Returns the number on this model's grid at the specified coordinates
-     *
-     * @param x The x-coordinate
-     * @param y The y-coordinate
-     * @return The number at the specified coordinates
-     */
-    public int getPiece(int x, int y) {
-        return this.grid[x][y];
-    }
-
-    /**
-     * Updates the status of this model based on the underlying grid representing the game's state.
+     * Updates the status of this model based on the underlying grid representing the game's state. Intended to be used
+     * only when the game has been completed (all squares filled in).
      */
     private void updateStatus() {
-        Set<Integer> all = new HashSet<>();
+        Set<Integer> allSums = new HashSet<>(); // This set will keep track of all individual sums across all rows, columns, and diagonals
 
-        List<Integer> integerListRow = new ArrayList<>();    // This set will be used to add numbers along rows
+        List<Integer> integerListRow = new ArrayList<>();       // This set will be used to add numbers along rows
         List<Integer> integerListColumn = new ArrayList<>();    // This set will be used to add characters along columns
-        List<Integer> integerListDiagonal = new ArrayList<>();    // This set will be used to add characters along the two diagonals
+        List<Integer> integerListDiagonal = new ArrayList<>();  // This set will be used to add characters along the two diagonals
 
-        for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the set
+        for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the corresponding sets
             for (int j = 0; j < SIZE; j++) {
                 integerListRow.add(this.grid[i][j]);
-                integerListColumn.add(this.grid[i][j]);
+                integerListColumn.add(this.grid[j][i]);
             }
 
-            all.add(integerListRow.stream().mapToInt(Integer::intValue).sum());     // This adds the sum of the numbers in the row to the set
-            all.add(integerListColumn.stream().mapToInt(Integer::intValue).sum());  // This adds the sum of the numbers in the column to the set
+            allSums.add(integerListRow.stream().mapToInt(Integer::intValue).sum());     // This adds the sum of the numbers in the row to the set
+            allSums.add(integerListColumn.stream().mapToInt(Integer::intValue).sum());  // This adds the sum of the numbers in the column to the set
 
-            integerListRow.clear();
+            integerListRow.clear();     // Clear both sets so they can be used for the next for loop iteration
             integerListColumn.clear();
         }
 
         // The same idea applies here to the two following checks for diagonals
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.grid[i][i]);
+            integerListDiagonal.add(this.grid[i][i]);  // This puts all numbers along the negative-sloped diagonal in the set
         }
 
-        all.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the diagonal to the set
-        integerListDiagonal.clear();
+        allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the negative-sloped diagonal to the set
+        integerListDiagonal.clear();    // Clear the set so it can be used for the last remaining diagonal
 
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.grid[SIZE - 1 - i][i]);
+            integerListDiagonal.add(this.grid[SIZE - 1 - i][i]);  // This puts all numbers along the positive-sloped diagonal in the set
         }
 
-        all.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the diagonal to the set
+        allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the positive-sloped diagonal to the set
 
-        if (all.size() == 1) {  // If all sums that were added to the set are the same (1 element in the set), then it is a victory
+        if (allSums.size() == 1) {  // If all sums that were added to the set are the same (1 element in the set), then it is a victory
             this.status = Status.VICTORY;
         } else {    // Otherwise it is not a victory
             this.status = Status.NO_VICTORY;
         }
-    }
-
-    /**
-     * Determines if the provided set represents a winning set of characters, and if so sets the appropriate status
-     * of this model.
-     *
-     * @param stringSet The set to validate
-     * @return True if the only character in the set is "X" or "O", false otherwise.
-     */
-    private boolean isWinning(Set<String> stringSet) {
-        if (stringSet.size() == 1) {
-            String toValidate = stringSet.iterator().next();
-            if (toValidate.equals("X")) {       // If the set has only one character, and it is "X", set the appropriate status
-                //this.status = Status.X_WON;
-                return true;
-            } else if (toValidate.equals("O")) {    // Likewise for "O"
-                //this.status = Status.O_WON;
-                return true;
-            }
-        }
-        return false;
     }
 }
