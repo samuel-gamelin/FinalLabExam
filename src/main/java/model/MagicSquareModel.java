@@ -19,7 +19,12 @@ public class MagicSquareModel {
     /**
      * A 2D array of strings representing which squares are occupied.
      */
-    private int[][] grid;
+    private int[][] numberGrid;
+
+    /**
+     * A 2D array of boolean representing which squares have been occupied.
+     */
+    private boolean[][] occupiedGrid;
 
     /**
      * A counter representing the number of free squares left.
@@ -34,22 +39,17 @@ public class MagicSquareModel {
     /**
      * A list containing all listeners of this model.
      */
-    private transient List<MagicSquareListener> magicSquareListenerList;
+    private List<MagicSquareListener> magicSquareListenerList;
 
     /**
      * Constructs a MagicSquare model.
      */
     public MagicSquareModel() {
-        this.grid = new int[SIZE][SIZE];
+        this.numberGrid = new int[SIZE][SIZE];
+        this.occupiedGrid = new boolean[SIZE][SIZE];
         this.numFreeSquares = SIZE * SIZE;
         this.status = Status.IN_PROGRESS;
         this.magicSquareListenerList = new ArrayList<>();
-
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                this.grid[i][j] = -1;
-            }
-        }
     }
 
     /**
@@ -62,13 +62,21 @@ public class MagicSquareModel {
     }
 
     /**
-     * Makes a move on this model's grid. Notifies all listeners of the updated status after the move has been made.
+     * Makes a move on this model's grid. Notifies all listeners of the updated status after the move has been made if
+     * the coordinates of the move are valid (i.e. within the grid's size and not on an occupied square), otherwise the
+     * method returns immediately without making any changes to this model.
      *
-     * @param x The x-coordinate of the move that is to be made
-     * @param y The y-coordinate of the move that is to be made
+     * @param x      The x-coordinate of the move that is to be made
+     * @param y      The y-coordinate of the move that is to be made
+     * @param number The number that is to be placed on the square outlined by the provided x and y coordinates
      */
     public void play(int x, int y, int number) {
-        this.grid[x][y] = number;
+        if (x < 0 || y < 0 || x >= SIZE || y >= SIZE || occupiedGrid[x][y]) {
+            return;
+        }
+
+        this.numberGrid[x][y] = number;
+        this.occupiedGrid[x][y] = true;
         this.numFreeSquares--;
 
         if (numFreeSquares == 0) { // Update the status when all squares have been filled
@@ -86,14 +94,13 @@ public class MagicSquareModel {
      * Resets this model to default configurations.
      */
     public void reset() {
+        /*
+         * There is no need to reset the grid of integers as a winner will only
+         * be determined when all values have been overwritten by new values from the user.
+         */
         this.status = Status.IN_PROGRESS;
         this.numFreeSquares = SIZE * SIZE;
-
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                this.grid[i][j] = -1;
-            }
-        }
+        this.occupiedGrid = new boolean[SIZE][SIZE];
     }
 
     /**
@@ -118,8 +125,8 @@ public class MagicSquareModel {
 
         for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the corresponding sets
             for (int j = 0; j < SIZE; j++) {
-                integerListRow.add(this.grid[i][j]);
-                integerListColumn.add(this.grid[j][i]);
+                integerListRow.add(this.numberGrid[i][j]);
+                integerListColumn.add(this.numberGrid[j][i]);
             }
 
             allSums.add(integerListRow.stream().mapToInt(Integer::intValue).sum());     // This adds the sum of the numbers in the row to the set
@@ -131,14 +138,14 @@ public class MagicSquareModel {
 
         // The same idea applies here to the two following checks for diagonals
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.grid[i][i]);  // This puts all numbers along the negative-sloped diagonal in the set
+            integerListDiagonal.add(this.numberGrid[i][i]);  // This puts all numbers along the negative-sloped diagonal in the set
         }
 
         allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the negative-sloped diagonal to the set
         integerListDiagonal.clear();    // Clear the set so it can be used for the last remaining diagonal
 
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.grid[SIZE - 1 - i][i]);  // This puts all numbers along the positive-sloped diagonal in the set
+            integerListDiagonal.add(this.numberGrid[SIZE - 1 - i][i]);  // This puts all numbers along the positive-sloped diagonal in the set
         }
 
         allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the positive-sloped diagonal to the set

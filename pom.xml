@@ -67,7 +67,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>view.</mainClass>
+                            <mainClass>view.MagicSquareView</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

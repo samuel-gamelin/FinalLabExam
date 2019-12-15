@@ -36,11 +36,12 @@ public class MagicSquareEvent {
      *
      * @param x      The x-coordinate associated with this event
      * @param y      The y-coordinate associated with this event
+     * @param number The number value associated with this event
      * @param status The status associated with this event
      */
     public MagicSquareEvent(int x, int y, int number, Status status) {
-        this.x = x < 0 || x >= SIZE ? -1: x;
-        this.x = x < 0 || x >= SIZE ? -1: y;
+        this.x = (x < 0 || x >= SIZE) ? -1 : x;
+        this.y = (x < 0 || x >= SIZE) ? -1 : y;
         this.number = number;
         this.status = status;
     }
