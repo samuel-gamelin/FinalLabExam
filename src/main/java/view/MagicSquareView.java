@@ -61,7 +61,7 @@ public class MagicSquareView extends JFrame implements MagicSquareListener {
                 JButton newButton = new JButton();
                 newButton.setPreferredSize(new Dimension((int) SCALE_FACTOR, (int) SCALE_FACTOR));
                 newButton.addActionListener(new MagicSquareController(i, j, model));
-                newButton.setFont(new Font("Arial", Font.BOLD, (int) (SCALE_FACTOR / 1.5)));
+                newButton.setFont(new Font("Arial", Font.BOLD, (int) (SCALE_FACTOR / 4)));
 
                 buttonGrid.add(this.buttons[i][j] = newButton);
             }

@@ -1,7 +1,7 @@
 package model;
 
 /**
- * This interface represents the behaviour that a listener of the TicTacToe game should have.
+ * This interface represents the behaviour that a listener of the MagicSquare game should have.
  *
  * @author Samuel Gamelin
  */

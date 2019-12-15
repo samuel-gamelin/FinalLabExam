@@ -43,13 +43,15 @@ public class MagicSquareController implements ActionListener {
     }
 
     /**
-     * Makes a move on this controller's associated model.
+     * This method will be invoked whenever a button in the game is clicked. A move on this controller's associated
+     * model will be made once the user has provided a valid number. If the user decides to cancel with inputting a
+     * number, no changes will be made to this controller's associated model.
      *
      * @param e The event that occurred
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        boolean invalidNumber = false; // Used to keep track of if the user has put in an invalid number (start off by assuming it's valid)
+        boolean invalidNumber = false; // Used to keep track of if the user has put in an invalid number (start off by assuming it's invalid)
 
         /*
          * This do-while loop will prompt the user to input a valid number until they either input a valid number or

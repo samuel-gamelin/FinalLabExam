@@ -119,11 +119,11 @@ public class MagicSquareModel {
     private void updateStatus() {
         Set<Integer> allSums = new HashSet<>(); // This set will keep track of all individual sums across all rows, columns, and diagonals
 
-        List<Integer> integerListRow = new ArrayList<>();       // This set will be used to add numbers along rows
-        List<Integer> integerListColumn = new ArrayList<>();    // This set will be used to add characters along columns
-        List<Integer> integerListDiagonal = new ArrayList<>();  // This set will be used to add characters along the two diagonals
+        List<Integer> integerListRow = new ArrayList<>();       // This list will be used to add numbers along rows
+        List<Integer> integerListColumn = new ArrayList<>();    // This list will be used to add characters along columns
+        List<Integer> integerListDiagonal = new ArrayList<>();  // This list will be used to add characters along the two diagonals
 
-        for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the corresponding sets
+        for (int i = 0; i < SIZE; i++) {        // Here, characters in each set of rows and column are added to the corresponding lists
             for (int j = 0; j < SIZE; j++) {
                 integerListRow.add(this.numberGrid[i][j]);
                 integerListColumn.add(this.numberGrid[j][i]);
@@ -132,20 +132,20 @@ public class MagicSquareModel {
             allSums.add(integerListRow.stream().mapToInt(Integer::intValue).sum());     // This adds the sum of the numbers in the row to the set
             allSums.add(integerListColumn.stream().mapToInt(Integer::intValue).sum());  // This adds the sum of the numbers in the column to the set
 
-            integerListRow.clear();     // Clear both sets so they can be used for the next for loop iteration
+            integerListRow.clear();     // Clear both lists so they can be used for the next for loop iteration
             integerListColumn.clear();
         }
 
         // The same idea applies here to the two following checks for diagonals
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.numberGrid[i][i]);  // This puts all numbers along the negative-sloped diagonal in the set
+            integerListDiagonal.add(this.numberGrid[i][i]);  // This puts all numbers along the negative-sloped diagonal in the list
         }
 
-        allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the negative-sloped diagonal to the set
-        integerListDiagonal.clear();    // Clear the set so it can be used for the last remaining diagonal
+        allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the negative-sloped diagonal to the list
+        integerListDiagonal.clear();    // Clear the list so it can be used for the last remaining diagonal
 
         for (int i = 0; i < SIZE; i++) {
-            integerListDiagonal.add(this.numberGrid[SIZE - 1 - i][i]);  // This puts all numbers along the positive-sloped diagonal in the set
+            integerListDiagonal.add(this.numberGrid[SIZE - 1 - i][i]);  // This puts all numbers along the positive-sloped diagonal in the list
         }
 
         allSums.add(integerListDiagonal.stream().mapToInt(Integer::intValue).sum()); // This adds the sum of the numbers in the positive-sloped diagonal to the set
